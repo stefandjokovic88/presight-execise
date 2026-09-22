@@ -1,4 +1,99 @@
-# Presight Frontend Exercise
+# Presight User Directory
+
+Full-stack searchable user directory: React client, Node.js/Express API, SQLite persistence.
+
+## Stack
+
+- **Client:** React 19, Vite, Tailwind CSS 4, TanStack Query + Virtual
+- **Server:** Express 5, better-sqlite3, TypeScript
+- **Data:** SQLite (`server/data/users.db`), 10,000 seeded users
+
+## Prerequisites
+
+- Node.js 20+ (LTS recommended)
+- Yarn 4 (via Corepack: `corepack enable`)
+- Docker + Docker Compose (optional)
+
+## Local setup
+
+```bash
+# From the repo root
+yarn install
+
+# Create / refresh the SQLite database (10,000 users)
+yarn seed
+
+# Terminal 1 — API (http://localhost:3001)
+yarn start:server
+
+# Terminal 2 — UI (http://localhost:5173, proxies /api → :3001)
+yarn start:client
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+### Useful scripts
+
+| Command | Description |
+|---------|-------------|
+| `yarn seed` | Wipe and re-seed SQLite |
+| `yarn start:server` | API only (tsx) |
+| `yarn start:client` | Vite dev server |
+| `yarn start` | Start client + server via Lerna (parallel) |
+| `yarn workspace presight-server build` | Compile server to `server/dist` |
+| `yarn workspace presight-client build` | Production client build to `client/dist` |
+
+Re-running `yarn seed` deletes `server/data/users.db` and recreates it.
+
+If the API starts against an empty DB, it seeds automatically (`ensureDatabaseSeeded`).
+
+### Production-style local run (single port)
+
+```bash
+yarn workspace presight-client build
+yarn workspace presight-server build
+PORT=8080 yarn workspace presight-server start:prod
+```
+
+Then open [http://localhost:8080](http://localhost:8080) — Express serves the API and the built client.
+
+## Docker Compose
+
+```bash
+docker compose up --build
+```
+
+- App: [http://localhost:8080](http://localhost:8080)
+- SQLite data is stored in the `sqlite_data` volume (`/app/server/data` in the container)
+- First start seeds the database if it is empty
+
+Stop:
+
+```bash
+docker compose down
+```
+
+Reset DB volume and re-seed on next start:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+## API overview
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Health check |
+| `GET` | `/api/users` | Paginated users (`q`, `hobbies`, `nationalities`, `sortBy`, `sortDir`, `page`, `pageSize`) |
+| `GET` | `/api/facets/hobbies` | Top 20 hobbies for current filters |
+| `GET` | `/api/facets/nationalities` | Top 20 nationalities for current filters |
+
+Filter semantics: hobbies = **AND**, nationalities = **OR**, combined with text search. Sort is deterministic (`field`, then `id`).
+
+---
+
+## Exercise brief
 
 Build a small full-stack user directory application. The goal is to evaluate how you design a searchable, filterable, paginated UI backed by persisted data and clear API boundaries.
 
@@ -9,13 +104,13 @@ The application should include:
 - A SQLite database used as the source of truth for user data.
 - Docker configuration for running the application locally.
 
-## Scenario
+### Scenario
 
 Users need to browse a large directory of people, search by name, and narrow results by nationality and hobbies. The filter sidebar should help users discover useful filters based on the result set they are currently viewing.
 
-## Requirements
+### Requirements
 
-### Data Model
+#### Data Model
 
 Seed a SQLite database with enough records to make pagination, infinite scroll, search, and filter counts meaningful.
 
@@ -32,7 +127,7 @@ Choose a data model that supports the required behavior.
 
 SQLite must be the persisted source of user data.
 
-### API
+#### API
 
 Expose an API that supports:
 
@@ -58,7 +153,7 @@ Sorting semantics:
 - Sorted results must be deterministic. Use `id` as a final tie-breaker when values are equal.
 - Pagination must respect the active sort without duplicate or missing users.
 
-### Client
+#### Client
 
 Build a React interface that includes:
 
@@ -92,13 +187,13 @@ When the text filter or selected filters change, the client must refresh both:
 
 The text filter value, selected hobbies, selected nationalities, sort field, and sort direction must be reflected in the URL query string. Reloading or sharing the URL should restore the same view state.
 
-## Implementation Notes
+### Implementation Notes
 
 - Keep the database setup easy to run locally.
 - Include seed logic or a documented command that creates the SQLite database.
 - Include a `Dockerfile` and `docker-compose.yml` that can run the application locally.
 
-## Evaluation Focus
+### Evaluation Focus
 
 We will pay particular attention to:
 
@@ -109,7 +204,7 @@ We will pay particular attention to:
 - Clear loading, empty, and error states.
 - Easy local and Docker-based setup.
 
-## Deliverables
+### Deliverables
 
 Please provide:
 

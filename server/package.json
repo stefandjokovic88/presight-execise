@@ -1,13 +1,28 @@
 {
   "name": "presight-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "license": "MIT",
+  "scripts": {
+    "seed": "tsx src/db/seed.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start:prod": "node dist/index.js"
+  },
   "dependencies": {
+    "@faker-js/faker": "^9.6.0",
+    "better-sqlite3": "^11.9.1",
+    "cors": "^2.8.5",
     "express": "~5.1.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/cors": "^2.8.17",
     "@types/express": "~5.0.1",
-    "@types/node-fetch": "~2.6.12"
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
   }
 }

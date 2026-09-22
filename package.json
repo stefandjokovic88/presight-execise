@@ -9,7 +9,13 @@
     "server"
   ],
   "scripts": {
-    "start": "lerna run start"
+    "start": "lerna run start --parallel",
+    "seed": "yarn workspace presight-server seed",
+    "start:server": "yarn workspace presight-server start",
+    "start:client": "yarn workspace presight-client start",
+    "build": "yarn workspace presight-client build && yarn workspace presight-server build",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
   },
   "devDependencies": {
     "lerna": "~8.2.1"

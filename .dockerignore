@@ -1,0 +1,21 @@
+# Dependencies & build outputs
+node_modules
+**/node_modules
+**/dist
+.git
+.DS_Store
+*.md
+!README.md
+
+# Local SQLite (re-seeded in the container)
+server/data/*.db
+server/data/*.db-*
+
+# Yarn / IDE
+.yarn/cache
+.yarn/install-state.gz
+.idea
+.vscode
+*.log
+.env
+.env.*
