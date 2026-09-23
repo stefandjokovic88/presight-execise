@@ -17,6 +17,9 @@ scripts/
 *.db-shm
 server/data/*
 !server/data/.gitkeep
+server-java/data/*
+!server-java/data/.gitkeep
+server-java/target/
 
 # Yarn (node-modules linker — not zero-installs)
 .yarn/*

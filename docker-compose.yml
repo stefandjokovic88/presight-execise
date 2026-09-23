@@ -1,6 +1,11 @@
 services:
-  app:
-    build: .
+  # Node backend (default historical setup)
+  #   docker compose --profile node up --build
+  app-node:
+    profiles: ["node"]
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -8,8 +13,26 @@ services:
       CLIENT_DIST: /app/client/dist
       NODE_ENV: production
     volumes:
-      - sqlite_data:/app/server/data
+      - sqlite_data_node:/app/server/data
+    restart: unless-stopped
+
+  # Java / Spring Boot backend (same API contract)
+  #   docker compose --profile java up --build
+  app-java:
+    profiles: ["java"]
+    build:
+      context: .
+      dockerfile: server-java/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      CLIENT_DIST: /app/client/dist
+      DB_PATH: /app/data/users.db
+    volumes:
+      - sqlite_data_java:/app/data
     restart: unless-stopped
 
 volumes:
-  sqlite_data:
+  sqlite_data_node:
+  sqlite_data_java:

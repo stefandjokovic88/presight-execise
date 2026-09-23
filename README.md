@@ -1,20 +1,24 @@
 # Presight User Directory
 
-Full-stack searchable user directory: React client, Node.js/Express API, SQLite persistence.
+Full-stack searchable user directory: React client, dual backends (Node.js/Express **or** Java/Spring Boot), SQLite persistence.
 
 ## Stack
 
 - **Client:** React 19, Vite, Tailwind CSS 4, TanStack Query + Virtual
-- **Server:** Express 5, better-sqlite3, TypeScript
-- **Data:** SQLite (`server/data/users.db`), 10,000 seeded users
+- **Server (Node):** Express 5, better-sqlite3, TypeScript — `server/`
+- **Server (Java):** Spring Boot 3, JDBC + SQLite — `server-java/`
+- **Data:** Separate SQLite DBs (`server/data/users.db` or `server-java/data/users.db`), 10,000 seeded users each
+
+Run **only one backend at a time** on port `3001` so the Vite proxy keeps working unchanged.
 
 ## Prerequisites
 
 - Node.js 20+ (LTS recommended)
 - Yarn 4 (via Corepack: `corepack enable`)
+- JDK 21+ (for the Java backend)
 - Docker + Docker Compose (optional)
 
-## Local setup
+## Local setup (Node backend)
 
 ```bash
 # From the repo root
@@ -32,22 +36,42 @@ yarn start:client
 
 Open [http://localhost:5173](http://localhost:5173).
 
+## Local setup (Java backend)
+
+Same client; swap only the API process (stop the Node server first).
+
+```bash
+# From the repo root — first time / wipe & re-seed
+yarn seed:java
+
+# Terminal 1 — Spring Boot API (http://localhost:3001)
+yarn start:server:java
+
+# Terminal 2 — same UI
+yarn start:client
+```
+
+If `server-java/data/users.db` is empty on startup, Spring Boot seeds automatically.
+
 ### Useful scripts
 
-| Command                                | Description                                |
-| -------------------------------------- | ------------------------------------------ |
-| `yarn seed`                            | Wipe and re-seed SQLite                    |
-| `yarn start:server`                    | API only (tsx)                             |
-| `yarn start:client`                    | Vite dev server                            |
-| `yarn start`                           | Start client + server via Lerna (parallel) |
-| `yarn workspace presight-server build` | Compile server to `server/dist`            |
-| `yarn workspace presight-client build` | Production client build to `client/dist`   |
+| Command                                | Description                                      |
+| -------------------------------------- | ------------------------------------------------ |
+| `yarn seed`                            | Wipe and re-seed Node SQLite                     |
+| `yarn seed:java`                       | Wipe and re-seed Java SQLite                     |
+| `yarn start:server`                    | Node API (tsx)                                   |
+| `yarn start:server:java`               | Java API (Spring Boot)                           |
+| `yarn start:client`                    | Vite dev server                                  |
+| `yarn start`                           | Client + Node server via Lerna (parallel)        |
+| `yarn build:java`                      | Package Spring Boot JAR                          |
+| `yarn workspace presight-server build` | Compile Node server to `server/dist`             |
+| `yarn workspace presight-client build` | Production client build to `client/dist`         |
 
-Re-running `yarn seed` deletes `server/data/users.db` and recreates it.
-
-If the API starts against an empty DB, it seeds automatically (`ensureDatabaseSeeded`).
+Re-running `yarn seed` / `yarn seed:java` deletes the corresponding DB and recreates it.
 
 ### Production-style local run (single port)
+
+**Node:**
 
 ```bash
 yarn workspace presight-client build
@@ -55,16 +79,33 @@ yarn workspace presight-server build
 PORT=8080 yarn workspace presight-server start:prod
 ```
 
-Then open [http://localhost:8080](http://localhost:8080) — Express serves the API and the built client.
+**Java:**
+
+```bash
+yarn workspace presight-client build
+yarn build:java
+PORT=8080 CLIENT_DIST="$(pwd)/client/dist" java -jar server-java/target/presight-server-java-1.0.0.jar
+```
+
+Then open [http://localhost:8080](http://localhost:8080) — the chosen server serves the API and the built client.
 
 ## Docker Compose
 
+Use a Compose **profile** so only one backend runs:
+
 ```bash
-docker compose up --build
+# Node
+docker compose --profile node up --build
+
+# Java
+docker compose --profile java up --build
 ```
 
+Shortcuts: `yarn docker:up` (node) / `yarn docker:up:java`.
+
 - App: [http://localhost:8080](http://localhost:8080)
-- SQLite data is stored in the `sqlite_data` volume (`/app/server/data` in the container)
+- Node SQLite volume: `sqlite_data_node` → `/app/server/data`
+- Java SQLite volume: `sqlite_data_java` → `/app/data`
 - First start seeds the database if it is empty
 
 Stop:
@@ -77,10 +118,12 @@ Reset DB volume and re-seed on next start:
 
 ```bash
 docker compose down -v
-docker compose up --build
+docker compose --profile node up --build   # or --profile java
 ```
 
 ## API overview
+
+Identical contract for Node and Java:
 
 | Method | Path          | Description                                                                                |
 | ------ | ------------- | ------------------------------------------------------------------------------------------ |

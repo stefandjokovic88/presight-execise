@@ -11,10 +11,14 @@
   "scripts": {
     "start": "lerna run start --parallel",
     "seed": "yarn workspace presight-server seed",
+    "seed:java": "cd server-java && ./mvnw -q exec:java -Dexec.mainClass=com.presight.users.SeedCli",
     "start:server": "yarn workspace presight-server start",
+    "start:server:java": "cd server-java && ./mvnw spring-boot:run",
     "start:client": "yarn workspace presight-client start",
     "build": "yarn workspace presight-client build && yarn workspace presight-server build",
-    "docker:up": "docker compose up --build",
+    "build:java": "cd server-java && ./mvnw -DskipTests package",
+    "docker:up": "docker compose --profile node up --build",
+    "docker:up:java": "docker compose --profile java up --build",
     "docker:down": "docker compose down"
   },
   "devDependencies": {

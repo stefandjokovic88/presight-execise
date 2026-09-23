@@ -1,0 +1,21 @@
+server:
+  port: ${PORT:3001}
+
+spring:
+  application:
+    name: presight-server-java
+  main:
+    banner-mode: off
+  sql:
+    init:
+      mode: never
+
+app:
+  db-path: ${DB_PATH:./data/users.db}
+  client-dist: ${CLIENT_DIST:}
+  seed-on-empty: true
+
+logging:
+  level:
+    root: INFO
+    com.presight.users: INFO

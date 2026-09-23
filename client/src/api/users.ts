@@ -70,7 +70,11 @@ async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
   try {
     return (await response.json()) as T;
   } catch {
-    throw new ApiError("Invalid JSON response from server", response.status, url);
+    throw new ApiError(
+      "Invalid JSON response from server",
+      response.status,
+      url,
+    );
   }
 }
 
