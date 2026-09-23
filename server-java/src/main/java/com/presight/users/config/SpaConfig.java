@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
@@ -31,6 +32,15 @@ public class SpaConfig implements WebMvcConfigurer {
   }
 
   @Override
+  public void addViewControllers(ViewControllerRegistry registry) {
+    if (!clientDistAvailable()) {
+      return;
+    }
+    // Spring resource handlers do not map "/" to index.html by default
+    registry.addViewController("/").setViewName("forward:/index.html");
+  }
+
+  @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     if (!clientDistAvailable()) {
       return;
@@ -52,9 +62,13 @@ public class SpaConfig implements WebMvcConfigurer {
                 if (resourcePath.startsWith("api/") || "health".equals(resourcePath)) {
                   return null;
                 }
+                // Empty path is "/" — serve index explicitly (createRelative("") can hit the directory)
+                if (!StringUtils.hasText(resourcePath) || "/".equals(resourcePath)) {
+                  return new FileSystemResource(clientDist.resolve("index.html"));
+                }
                 org.springframework.core.io.Resource requested =
                     location.createRelative(resourcePath);
-                if (requested.exists() && requested.isReadable()) {
+                if (requested.exists() && requested.isReadable() && requested.isFile()) {
                   return requested;
                 }
                 // SPA fallback for client-side routes
