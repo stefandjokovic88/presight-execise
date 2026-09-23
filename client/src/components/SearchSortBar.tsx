@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useDebouncedCallback } from "../hooks/useDebouncedCallback";
 import type { SortDir, SortField } from "../types";
 import { SORT_FIELDS } from "../types";
 import { SelectMenu } from "./SelectMenu";
@@ -40,24 +41,16 @@ export function SearchSortBar({
   onOpenFilters,
 }: SearchSortBarProps) {
   const [draft, setDraft] = useState(q);
-  const onQueryChangeRef = useRef(onQueryChange);
-  onQueryChangeRef.current = onQueryChange;
+  const { debounced: pushQuery, cancel } = useDebouncedCallback(
+    onQueryChange,
+    300,
+  );
 
-  // Sync input when URL search is changed/cleared from outside.
+  // External URL changes (Clear, back/forward): sync input and drop pending push.
   useEffect(() => {
+    cancel();
     setDraft(q);
-  }, [q]);
-
-  // Debounce typing → URL. Skip when draft already matches `q` (e.g. after clear).
-  useEffect(() => {
-    if (draft === q) return;
-
-    const timer = window.setTimeout(() => {
-      onQueryChangeRef.current(draft);
-    }, 300);
-
-    return () => window.clearTimeout(timer);
-  }, [draft, q]);
+  }, [q, cancel]);
 
   return (
     <StudioGlowCard
@@ -92,7 +85,11 @@ export function SearchSortBar({
             id="user-search"
             type="search"
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setDraft(value);
+              pushQuery(value);
+            }}
             placeholder="Search by first or last name…"
             className="w-full rounded-lg border border-[rgba(255,255,255,0.22)] bg-[var(--color-panel)] px-3 py-2 outline-none ring-[var(--color-accent)] focus:ring-2"
           />

@@ -20,24 +20,16 @@ apiRouter.get("/users", (req, res) => {
   }
 });
 
-apiRouter.get("/facets/hobbies", (req, res) => {
+apiRouter.get("/facets", (req, res) => {
   try {
     const filters = parseUserFilters(req);
-    const items = getTopHobbies(getDb(), filters);
-    res.json({ items });
+    const db = getDb();
+    res.json({
+      hobbies: getTopHobbies(db, filters),
+      nationalities: getTopNationalities(db, filters),
+    });
   } catch (error) {
-    console.error("GET /api/facets/hobbies failed:", error);
-    res.status(500).json({ error: "Failed to fetch hobby facets" });
-  }
-});
-
-apiRouter.get("/facets/nationalities", (req, res) => {
-  try {
-    const filters = parseUserFilters(req);
-    const items = getTopNationalities(getDb(), filters);
-    res.json({ items });
-  } catch (error) {
-    console.error("GET /api/facets/nationalities failed:", error);
-    res.status(500).json({ error: "Failed to fetch nationality facets" });
+    console.error("GET /api/facets failed:", error);
+    res.status(500).json({ error: "Failed to fetch facets" });
   }
 });

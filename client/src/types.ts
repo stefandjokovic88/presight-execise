@@ -36,8 +36,10 @@ export interface FacetValue {
   count: number;
 }
 
-export interface FacetsResponse {
-  items: FacetValue[];
+/** Combined facets payload from GET /api/facets */
+export interface DirectoryFacetsResponse {
+  hobbies: FacetValue[];
+  nationalities: FacetValue[];
 }
 
 export const SORT_FIELDS: SortField[] = [

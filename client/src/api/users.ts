@@ -1,14 +1,14 @@
 import type {
+  DirectoryFacetsResponse,
   DirectoryFilters,
-  FacetsResponse,
   UsersResponse,
 } from "../types";
 import { PAGE_SIZE } from "../types";
 import { ApiError } from "./errors";
 
-function buildSearchParams(
+function buildUsersSearchParams(
   filters: DirectoryFilters,
-  page?: number,
+  page: number,
 ): URLSearchParams {
   const params = new URLSearchParams();
 
@@ -21,12 +21,22 @@ function buildSearchParams(
   }
   params.set("sortBy", filters.sortBy);
   params.set("sortDir", filters.sortDir);
+  params.set("page", String(page));
+  params.set("pageSize", String(PAGE_SIZE));
 
-  if (page != null) {
-    params.set("page", String(page));
-    params.set("pageSize", String(PAGE_SIZE));
+  return params;
+}
+
+/** Filter params that affect facet counts (sort is ignored server-side). */
+function buildFacetsSearchParams(filters: DirectoryFilters): URLSearchParams {
+  const params = new URLSearchParams();
+  if (filters.q) params.set("q", filters.q);
+  if (filters.nationalities.length > 0) {
+    params.set("nationalities", filters.nationalities.join(","));
   }
-
+  if (filters.hobbies.length > 0) {
+    params.set("hobbies", filters.hobbies.join(","));
+  }
   return params;
 }
 
@@ -69,25 +79,15 @@ export function fetchUsersPage(
   page: number,
   signal?: AbortSignal,
 ): Promise<UsersResponse> {
-  const params = buildSearchParams(filters, page);
+  const params = buildUsersSearchParams(filters, page).toString();
   return getJson<UsersResponse>(`/api/users?${params}`, signal);
 }
 
-export function fetchHobbyFacets(
+export function fetchFacets(
   filters: DirectoryFilters,
   signal?: AbortSignal,
-): Promise<FacetsResponse> {
-  const params = buildSearchParams(filters);
-  return getJson<FacetsResponse>(`/api/facets/hobbies?${params}`, signal);
-}
-
-export function fetchNationalityFacets(
-  filters: DirectoryFilters,
-  signal?: AbortSignal,
-): Promise<FacetsResponse> {
-  const params = buildSearchParams(filters);
-  return getJson<FacetsResponse>(
-    `/api/facets/nationalities?${params}`,
-    signal,
-  );
+): Promise<DirectoryFacetsResponse> {
+  const params = buildFacetsSearchParams(filters).toString();
+  const url = params ? `/api/facets?${params}` : "/api/facets";
+  return getJson<DirectoryFacetsResponse>(url, signal);
 }

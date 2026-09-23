@@ -173,6 +173,40 @@ select:disabled {
   animation: studio-glow-card-ambient 4.5s ease-in-out infinite;
 }
 
+/* Clip scroll paint to the shell radius without trapping popovers on the outer card. */
+.studio-glow-card__content {
+  border-radius: inherit;
+}
+
+/*
+ * Native scrollbars ignore border-radius on the scrolling element itself.
+ * Clip on a parent layer (overflow + clip-path) so the track can't square off the corners.
+ */
+.studio-glow-card__content--clip {
+  overflow: hidden;
+  border-radius: inherit;
+  clip-path: inset(0 round 1rem);
+}
+
+.studio-glow-card__content--clip ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.studio-glow-card__content--clip ::-webkit-scrollbar-track {
+  background: transparent;
+  /* Keep the track out of the rounded corners. */
+  margin-block: 0.75rem;
+}
+
+.studio-glow-card__content--clip ::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(138, 151, 182, 0.45);
+}
+
+.studio-glow-card__content--clip ::-webkit-scrollbar-thumb:hover {
+  background: rgba(138, 151, 182, 0.7);
+}
+
 .studio-glow-card__clip {
   position: absolute;
   inset: 0;

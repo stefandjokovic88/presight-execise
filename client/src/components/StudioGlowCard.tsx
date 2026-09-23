@@ -34,7 +34,7 @@ export function StudioGlowCard({
         <span aria-hidden className="studio-glow-card__shimmer" />
       </span>
       <div
-        className={["relative z-10", contentClassName]
+        className={["studio-glow-card__content relative z-10", contentClassName]
           .filter(Boolean)
           .join(" ")}
       >

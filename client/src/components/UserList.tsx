@@ -155,11 +155,11 @@ export function UserList({
   }, [lastItem, users.length, hasNextPage, isFetchingNextPage, onLoadMore]);
 
   return (
-    <StudioGlowCard className="h-full" contentClassName="h-full">
-      <div
-        ref={parentRef}
-        className="relative z-0 h-full overflow-y-auto p-2"
-      >
+    <StudioGlowCard
+      className="h-full"
+      contentClassName="studio-glow-card__content--clip h-full"
+    >
+      <div ref={parentRef} className="relative z-0 h-full overflow-y-auto p-2">
         <div
           className="relative w-full"
           style={{ height: `${virtualizer.getTotalSize()}px` }}

@@ -8,8 +8,7 @@ import { useDelayedTrue } from "./hooks/useDelayedTrue";
 import { useDirectoryParams } from "./hooks/useDirectoryParams";
 import {
   filtersKey,
-  useHobbyFacetsQuery,
-  useNationalityFacetsQuery,
+  useFacetsQuery,
   useUsersInfiniteQuery,
 } from "./hooks/useUsersQueries";
 
@@ -27,8 +26,7 @@ export function App() {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const usersQuery = useUsersInfiniteQuery(filters);
-  const hobbiesQuery = useHobbyFacetsQuery(filters);
-  const nationalitiesQuery = useNationalityFacetsQuery(filters);
+  const facetsQuery = useFacetsQuery(filters);
 
   const users = useMemo(
     () => usersQuery.data?.pages.flatMap((page) => page.data) ?? [],
@@ -41,10 +39,10 @@ export function App() {
   const noMatchingUsers = usersResultReady && total === 0;
 
   // When the user list is confirmed empty, don't keep stale facet placeholders.
-  const hobbyItems = noMatchingUsers ? [] : (hobbiesQuery.data?.items ?? []);
+  const hobbyItems = noMatchingUsers ? [] : (facetsQuery.data?.hobbies ?? []);
   const nationalityItems = noMatchingUsers
     ? []
-    : (nationalitiesQuery.data?.items ?? []);
+    : (facetsQuery.data?.nationalities ?? []);
 
   const isBootstrapLoading =
     !usersQuery.data && usersQuery.isPending && !usersQuery.isPlaceholderData;
@@ -57,19 +55,16 @@ export function App() {
   // Only show refresh UI if the request takes longer than ~300ms.
   const showRefreshing = useDelayedTrue(isRefreshing, 300);
 
-  const hobbiesError =
-    hobbiesQuery.isError && !hobbiesQuery.data
-      ? getErrorMessage(hobbiesQuery.error)
+  const facetsError =
+    facetsQuery.isError && !facetsQuery.data
+      ? getErrorMessage(facetsQuery.error)
       : null;
-  const nationalitiesError =
-    nationalitiesQuery.isError && !nationalitiesQuery.data
-      ? getErrorMessage(nationalitiesQuery.error)
-      : null;
+  const facetsLoading =
+    !noMatchingUsers && facetsQuery.isPending && !facetsQuery.data;
 
   const retryAll = () => {
     void usersQuery.refetch();
-    void hobbiesQuery.refetch();
-    void nationalitiesQuery.refetch();
+    void facetsQuery.refetch();
   };
 
   const sidebar = (
@@ -78,20 +73,11 @@ export function App() {
       nationalities={nationalityItems}
       selectedHobbies={filters.hobbies}
       selectedNationalities={filters.nationalities}
-      hobbiesLoading={
-        !noMatchingUsers && hobbiesQuery.isPending && !hobbiesQuery.data
-      }
-      nationalitiesLoading={
-        !noMatchingUsers &&
-        nationalitiesQuery.isPending &&
-        !nationalitiesQuery.data
-      }
-      hobbiesError={hobbiesError}
-      nationalitiesError={nationalitiesError}
+      facetsLoading={facetsLoading}
+      facetsError={facetsError}
       onToggleHobby={toggleHobby}
       onToggleNationality={toggleNationality}
-      onRetryHobbies={() => void hobbiesQuery.refetch()}
-      onRetryNationalities={() => void nationalitiesQuery.refetch()}
+      onRetryFacets={() => void facetsQuery.refetch()}
       onClear={clearFilters}
     />
   );

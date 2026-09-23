@@ -34,14 +34,14 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ### Useful scripts
 
-| Command | Description |
-|---------|-------------|
-| `yarn seed` | Wipe and re-seed SQLite |
-| `yarn start:server` | API only (tsx) |
-| `yarn start:client` | Vite dev server |
-| `yarn start` | Start client + server via Lerna (parallel) |
-| `yarn workspace presight-server build` | Compile server to `server/dist` |
-| `yarn workspace presight-client build` | Production client build to `client/dist` |
+| Command                                | Description                                |
+| -------------------------------------- | ------------------------------------------ |
+| `yarn seed`                            | Wipe and re-seed SQLite                    |
+| `yarn start:server`                    | API only (tsx)                             |
+| `yarn start:client`                    | Vite dev server                            |
+| `yarn start`                           | Start client + server via Lerna (parallel) |
+| `yarn workspace presight-server build` | Compile server to `server/dist`            |
+| `yarn workspace presight-client build` | Production client build to `client/dist`   |
 
 Re-running `yarn seed` deletes `server/data/users.db` and recreates it.
 
@@ -82,12 +82,11 @@ docker compose up --build
 
 ## API overview
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/health` | Health check |
-| `GET` | `/api/users` | Paginated users (`q`, `hobbies`, `nationalities`, `sortBy`, `sortDir`, `page`, `pageSize`) |
-| `GET` | `/api/facets/hobbies` | Top 20 hobbies for current filters |
-| `GET` | `/api/facets/nationalities` | Top 20 nationalities for current filters |
+| Method | Path          | Description                                                                                |
+| ------ | ------------- | ------------------------------------------------------------------------------------------ |
+| `GET`  | `/health`     | Health check                                                                               |
+| `GET`  | `/api/users`  | Paginated users (`q`, `hobbies`, `nationalities`, `sortBy`, `sortDir`, `page`, `pageSize`) |
+| `GET`  | `/api/facets` | Top 20 hobbies + nationalities for current filters (`q`, `hobbies`, `nationalities`)       |
 
 Filter semantics: hobbies = **AND**, nationalities = **OR**, combined with text search. Sort is deterministic (`field`, then `id`).
 

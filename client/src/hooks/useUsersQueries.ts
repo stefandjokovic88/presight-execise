@@ -3,13 +3,10 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import {
-  fetchHobbyFacets,
-  fetchNationalityFacets,
-  fetchUsersPage,
-} from "../api/users";
+import { fetchFacets, fetchUsersPage } from "../api/users";
 import type { DirectoryFilters } from "../types";
 
+/** Full directory state — users list depends on every field, including sort. */
 export function filtersKey(filters: DirectoryFilters) {
   return {
     q: filters.q,
@@ -17,6 +14,18 @@ export function filtersKey(filters: DirectoryFilters) {
     hobbies: [...filters.hobbies].sort(),
     sortBy: filters.sortBy,
     sortDir: filters.sortDir,
+  };
+}
+
+/**
+ * Combined facets depend on search + both facet selections (each dimension
+ * still applies disjunctive rules server-side). Omit sort — facets ignore it.
+ */
+export function facetsKey(filters: DirectoryFilters) {
+  return {
+    q: filters.q,
+    nationalities: [...filters.nationalities].sort(),
+    hobbies: [...filters.hobbies].sort(),
   };
 }
 
@@ -34,18 +43,10 @@ export function useUsersInfiniteQuery(filters: DirectoryFilters) {
   });
 }
 
-export function useHobbyFacetsQuery(filters: DirectoryFilters) {
+export function useFacetsQuery(filters: DirectoryFilters) {
   return useQuery({
-    queryKey: ["facets", "hobbies", filtersKey(filters)],
-    queryFn: ({ signal }) => fetchHobbyFacets(filters, signal),
-    placeholderData: keepPreviousData,
-  });
-}
-
-export function useNationalityFacetsQuery(filters: DirectoryFilters) {
-  return useQuery({
-    queryKey: ["facets", "nationalities", filtersKey(filters)],
-    queryFn: ({ signal }) => fetchNationalityFacets(filters, signal),
+    queryKey: ["facets", facetsKey(filters)],
+    queryFn: ({ signal }) => fetchFacets(filters, signal),
     placeholderData: keepPreviousData,
   });
 }

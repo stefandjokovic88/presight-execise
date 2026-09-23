@@ -7,14 +7,11 @@ interface FilterSidebarProps {
   nationalities: FacetValue[];
   selectedHobbies: string[];
   selectedNationalities: string[];
-  hobbiesLoading: boolean;
-  nationalitiesLoading: boolean;
-  hobbiesError?: string | null;
-  nationalitiesError?: string | null;
+  facetsLoading: boolean;
+  facetsError?: string | null;
   onToggleHobby: (value: string) => void;
   onToggleNationality: (value: string) => void;
-  onRetryHobbies?: () => void;
-  onRetryNationalities?: () => void;
+  onRetryFacets?: () => void;
   onClear: () => void;
 }
 
@@ -37,14 +34,11 @@ export function FilterSidebar({
   nationalities,
   selectedHobbies,
   selectedNationalities,
-  hobbiesLoading,
-  nationalitiesLoading,
-  hobbiesError,
-  nationalitiesError,
+  facetsLoading,
+  facetsError,
   onToggleHobby,
   onToggleNationality,
-  onRetryHobbies,
-  onRetryNationalities,
+  onRetryFacets,
   onClear,
 }: FilterSidebarProps) {
   const hasSelection =
@@ -59,43 +53,45 @@ export function FilterSidebar({
   return (
     <StudioGlowCard
       className="h-full"
-      contentClassName="flex h-full flex-col gap-3 overflow-y-auto p-4"
+      contentClassName="studio-glow-card__content--clip h-full"
     >
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold tracking-wide text-[var(--color-muted)] uppercase">
-          Filters
-        </h2>
-        <button
-          type="button"
-          onClick={onClear}
-          disabled={!hasSelection}
-          aria-hidden={!hasSelection}
-          tabIndex={hasSelection ? undefined : -1}
-          className={`rounded-md border border-[rgba(255,255,255,0.22)] px-2 py-1 text-xs font-medium text-[var(--color-accent)] transition hover:border-[rgba(31,182,230,0.65)] hover:bg-[var(--color-accent-soft)] ${hasSelection ? "visible" : "invisible"}`}
-        >
-          Clear
-        </button>
+      <div className="flex h-full flex-col gap-3 overflow-y-auto p-4">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold tracking-wide text-[var(--color-muted)] uppercase">
+            Filters
+          </h2>
+          <button
+            type="button"
+            onClick={onClear}
+            disabled={!hasSelection}
+            aria-hidden={!hasSelection}
+            tabIndex={hasSelection ? undefined : -1}
+            className={`rounded-md border border-[rgba(255,255,255,0.22)] px-2 py-1 text-xs font-medium text-[var(--color-accent)] transition hover:border-[rgba(31,182,230,0.65)] hover:bg-[var(--color-accent-soft)] ${hasSelection ? "visible" : "invisible"}`}
+          >
+            Clear
+          </button>
+        </div>
+
+        <FacetSection
+          title="Hobbies"
+          items={hobbyItems}
+          selected={selectedHobbies}
+          loading={facetsLoading}
+          error={facetsError}
+          onRetry={onRetryFacets}
+          onToggle={onToggleHobby}
+        />
+
+        <FacetSection
+          title="Nationalities"
+          items={nationalityItems}
+          selected={selectedNationalities}
+          loading={facetsLoading}
+          error={facetsError}
+          onRetry={onRetryFacets}
+          onToggle={onToggleNationality}
+        />
       </div>
-
-      <FacetSection
-        title="Hobbies"
-        items={hobbyItems}
-        selected={selectedHobbies}
-        loading={hobbiesLoading}
-        error={hobbiesError}
-        onRetry={onRetryHobbies}
-        onToggle={onToggleHobby}
-      />
-
-      <FacetSection
-        title="Nationalities"
-        items={nationalityItems}
-        selected={selectedNationalities}
-        loading={nationalitiesLoading}
-        error={nationalitiesError}
-        onRetry={onRetryNationalities}
-        onToggle={onToggleNationality}
-      />
     </StudioGlowCard>
   );
 }
