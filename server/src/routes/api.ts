@@ -11,6 +11,7 @@ export const apiRouter = Router();
 
 apiRouter.get("/users", (req, res) => {
   try {
+    // throw new Error("simulated failure"); // temporary for testing error logging
     const query = parseListQuery(req);
     const result = listUsers(getDb(), query);
     res.json(result);

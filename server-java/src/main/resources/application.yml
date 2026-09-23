@@ -19,3 +19,6 @@ logging:
   level:
     root: INFO
     com.presight.users: INFO
+  pattern:
+    # Keep Docker logs readable (one line per event; stack traces still follow errors)
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"

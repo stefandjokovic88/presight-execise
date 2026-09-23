@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ensureDatabaseSeeded } from "./db/seed.js";
+import { requestLogging } from "./middleware/requestLogging.js";
 import { apiRouter } from "./routes/api.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,12 +18,18 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(requestLogging);
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
 app.use("/api", apiRouter);
+
+// Unknown /api/* routes → JSON 404 response shaped like API errors
+app.use("/api", (req, res) => {
+  res.status(404).json({ error: "Not found", path: req.originalUrl });
+});
 
 if (fs.existsSync(CLIENT_DIST)) {
   app.use(express.static(CLIENT_DIST));

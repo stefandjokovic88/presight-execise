@@ -35,6 +35,7 @@ public class UsersController {
       @RequestParam(required = false) Integer page,
       @RequestParam(required = false) Integer pageSize) {
     try {
+      // throw new RuntimeException("simulated failure"); // temporary for testing error logging
       ListQuery query =
           QueryParsers.parseListQuery(q, nationalities, hobbies, sortBy, sortDir, page, pageSize);
       UsersResponse result = userService.listUsers(query);

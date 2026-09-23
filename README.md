@@ -32,6 +32,9 @@ yarn start:server
 
 # Terminal 2 — UI (http://localhost:5173, proxies /api → :3001)
 yarn start:client
+
+# Or both in parallel
+yarn start
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
@@ -49,6 +52,9 @@ yarn start:server:java
 
 # Terminal 2 — same UI
 yarn start:client
+
+# Or both in parallel
+yarn start:java
 ```
 
 If `server-java/data/users.db` is empty on startup, Spring Boot seeds automatically.
@@ -63,6 +69,7 @@ If `server-java/data/users.db` is empty on startup, Spring Boot seeds automatica
 | `yarn start:server:java`               | Java API (Spring Boot)                           |
 | `yarn start:client`                    | Vite dev server                                  |
 | `yarn start`                           | Client + Node server via Lerna (parallel)        |
+| `yarn start:java`                      | Client + Java server (parallel)                  |
 | `yarn build:java`                      | Package Spring Boot JAR                          |
 | `yarn workspace presight-server build` | Compile Node server to `server/dist`             |
 | `yarn workspace presight-client build` | Production client build to `client/dist`         |
@@ -120,6 +127,48 @@ Reset DB volume and re-seed on next start:
 docker compose down -v
 docker compose --profile node up --build   # or --profile java
 ```
+
+## Logging
+
+Both backends log `/api` and `/health` requests to **stdout** (method, URL, status, duration), plus stack traces on failures. Local and Docker use the same stream — only where you watch differs.
+
+**Local** — use the terminal where the API is running:
+
+```bash
+yarn start:server        # Node
+yarn start:server:java   # Java
+```
+
+**Docker** — follow the active Compose service:
+
+```bash
+docker compose logs -f app-node   # Node profile
+docker compose logs -f app-java   # Java profile
+```
+
+**Try it** — with logs visible, hit the API (local `:3001`, Docker `:8080`):
+
+```bash
+# Local
+curl -i "http://localhost:3001/api/users?pageSize=1"
+curl -i "http://localhost:3001/api/nope"
+curl -i "http://localhost:3001/health"
+
+# Docker (single port)
+curl -i "http://localhost:8080/api/users?pageSize=1"
+curl -i "http://localhost:8080/api/nope"
+curl -i "http://localhost:8080/health"
+```
+
+Example log lines:
+
+```text
+GET /api/users?pageSize=1 -> 200 (42 ms)
+GET /api/nope -> 404 (3 ms)
+GET /health -> 200 (2 ms)
+```
+
+Static UI assets are not logged, so the stream stays readable.
 
 ## API overview
 

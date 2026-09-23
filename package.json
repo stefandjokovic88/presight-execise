@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "start": "lerna run start --parallel",
+    "start:java": "yarn start:client & yarn start:server:java & wait",
     "seed": "yarn workspace presight-server seed",
     "seed:java": "cd server-java && ./mvnw -q exec:java -Dexec.mainClass=com.presight.users.SeedCli",
     "start:server": "yarn workspace presight-server start",
