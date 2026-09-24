@@ -1433,6 +1433,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scarf/scarf@npm:=1.4.0":
+  version: 1.4.0
+  resolution: "@scarf/scarf@npm:1.4.0"
+  checksum: 10c0/332118bb488e7a70eaad068fb1a33f016d30442fb0498b37a80cb425c1e741853a5de1a04dce03526ed6265481ecf744aa6e13f072178d19e6b94b19f623ae1c
+  languageName: node
+  linkType: hard
+
 "@sigstore/bundle@npm:^2.3.2":
   version: 2.3.2
   resolution: "@sigstore/bundle@npm:2.3.2"
@@ -1831,7 +1838,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:~5.0.1":
+"@types/express@npm:*, @types/express@npm:~5.0.1":
   version: 5.0.6
   resolution: "@types/express@npm:5.0.6"
   dependencies:
@@ -1929,13 +1936,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/serve-static@npm:^2":
+"@types/serve-static@npm:*, @types/serve-static@npm:^2":
   version: 2.2.0
   resolution: "@types/serve-static@npm:2.2.0"
   dependencies:
     "@types/http-errors": "npm:*"
     "@types/node": "npm:*"
   checksum: 10c0/a3c6126bdbf9685e6c7dc03ad34639666eff32754e912adeed9643bf3dd3aa0ff043002a7f69039306e310d233eb8e160c59308f95b0a619f32366bbc48ee094
+  languageName: node
+  linkType: hard
+
+"@types/swagger-ui-express@npm:^4.1.8":
+  version: 4.1.8
+  resolution: "@types/swagger-ui-express@npm:4.1.8"
+  dependencies:
+    "@types/express": "npm:*"
+    "@types/serve-static": "npm:*"
+  checksum: 10c0/9c9e8327c40376b98b6fbd5dd2d722b7b5473e5c168af809431f16b34c948d2d3d44ce2157d2066355e9926ba86416481a30cd1cbcdbb064dd2fedb28442a85a
   languageName: node
   linkType: hard
 
@@ -6145,9 +6162,11 @@ __metadata:
     "@types/cors": "npm:^2.8.17"
     "@types/express": "npm:~5.0.1"
     "@types/node": "npm:^22.13.10"
+    "@types/swagger-ui-express": "npm:^4.1.8"
     better-sqlite3: "npm:^11.9.1"
     cors: "npm:^2.8.5"
     express: "npm:~5.1.0"
+    swagger-ui-express: "npm:^5.0.1"
     tsx: "npm:^4.19.3"
     typescript: "npm:^5.8.2"
   languageName: unknown
@@ -7174,6 +7193,26 @@ __metadata:
   version: 1.0.0
   resolution: "supports-preserve-symlinks-flag@npm:1.0.0"
   checksum: 10c0/6c4032340701a9950865f7ae8ef38578d8d7053f5e10518076e6554a9381fa91bd9c6850193695c141f32b21f979c985db07265a758867bac95de05f7d8aeb39
+  languageName: node
+  linkType: hard
+
+"swagger-ui-dist@npm:>=5.0.0":
+  version: 5.33.0
+  resolution: "swagger-ui-dist@npm:5.33.0"
+  dependencies:
+    "@scarf/scarf": "npm:=1.4.0"
+  checksum: 10c0/792fd658c50e66c03d657c9e3d22de97ca20e81ac94568984b806bff0933f5bdabf1cc568ed7cfd6d27d573819dcd599af4136d1410852acd299761f655e69bf
+  languageName: node
+  linkType: hard
+
+"swagger-ui-express@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "swagger-ui-express@npm:5.0.1"
+  dependencies:
+    swagger-ui-dist: "npm:>=5.0.0"
+  peerDependencies:
+    express: ">=4.0.0 || >=5.0.0-beta"
+  checksum: 10c0/dbe9830caef7fe455241e44e74958bac62642997e4341c1b0f38a3d684d19a4a81b431217c656792d99f046a1b5f261abf7783ede0afe41098cd4450401f6fd1
   languageName: node
   linkType: hard
 

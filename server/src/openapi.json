@@ -1,0 +1,292 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Presight Users API",
+    "description": "Searchable, filterable, paginated user directory API (Node/Express).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development"
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "Production-style / Docker"
+    }
+  ],
+  "tags": [
+    { "name": "Health", "description": "Liveness checks" },
+    { "name": "Users", "description": "User directory listing" },
+    { "name": "Facets", "description": "Filter facet counts" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Service is up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok"],
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List users",
+        "description": "Paginated users with text search and filters. Hobbies use AND matching; nationalities use OR matching.",
+        "operationId": "listUsers",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive search on first and last name",
+            "schema": { "type": "string", "default": "" }
+          },
+          {
+            "name": "nationalities",
+            "in": "query",
+            "description": "Nationality filters (OR). Comma-separated or repeated query params.",
+            "schema": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "hobbies",
+            "in": "query",
+            "description": "Hobby filters (AND). Comma-separated or repeated query params.",
+            "schema": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Sort field",
+            "schema": {
+              "type": "string",
+              "enum": ["first_name", "last_name", "age", "nationality"],
+              "default": "last_name"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "description": "Sort direction",
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "asc"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "1-based page number",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Page size (1–100)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated user list",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UsersResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "error": "Failed to fetch users" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/facets": {
+      "get": {
+        "tags": ["Facets"],
+        "summary": "Directory facets",
+        "description": "Top 20 hobbies and nationalities for the current filters. Counts intentionally ignore the same-dimension filter so multi-select stays usable.",
+        "operationId": "getFacets",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Case-insensitive search on first and last name",
+            "schema": { "type": "string", "default": "" }
+          },
+          {
+            "name": "nationalities",
+            "in": "query",
+            "description": "Nationality filters (OR). Comma-separated or repeated query params.",
+            "schema": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "hobbies",
+            "in": "query",
+            "description": "Hobby filters (AND). Comma-separated or repeated query params.",
+            "schema": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "array", "items": { "type": "string" } }
+              ]
+            },
+            "style": "form",
+            "explode": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Facet counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryFacetsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "error": "Failed to fetch facets" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "avatar",
+          "first_name",
+          "last_name",
+          "age",
+          "nationality",
+          "hobbies"
+        ],
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "avatar": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://i.pravatar.cc/150?u=1"
+          },
+          "first_name": { "type": "string", "example": "Ada" },
+          "last_name": { "type": "string", "example": "Lovelace" },
+          "age": { "type": "integer", "example": 36 },
+          "nationality": { "type": "string", "example": "British" },
+          "hobbies": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["math", "poetry"]
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "required": ["page", "pageSize", "total", "hasMore"],
+        "properties": {
+          "page": { "type": "integer", "example": 1 },
+          "pageSize": { "type": "integer", "example": 50 },
+          "total": { "type": "integer", "example": 10000 },
+          "hasMore": { "type": "boolean", "example": true }
+        }
+      },
+      "UsersResponse": {
+        "type": "object",
+        "required": ["data", "pagination"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/User" }
+          },
+          "pagination": { "$ref": "#/components/schemas/PaginationMeta" }
+        }
+      },
+      "FacetValue": {
+        "type": "object",
+        "required": ["value", "count"],
+        "properties": {
+          "value": { "type": "string", "example": "reading" },
+          "count": { "type": "integer", "example": 42 }
+        }
+      },
+      "DirectoryFacetsResponse": {
+        "type": "object",
+        "required": ["hobbies", "nationalities"],
+        "properties": {
+          "hobbies": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FacetValue" }
+          },
+          "nationalities": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FacetValue" }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  }
+}

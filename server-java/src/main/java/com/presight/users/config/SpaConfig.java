@@ -59,7 +59,7 @@ public class SpaConfig implements WebMvcConfigurer {
               protected org.springframework.core.io.Resource getResource(
                   String resourcePath, org.springframework.core.io.Resource location)
                   throws java.io.IOException {
-                if (resourcePath.startsWith("api/") || "health".equals(resourcePath)) {
+                if (isApiOrDocsPath(resourcePath)) {
                   return null;
                 }
                 // Empty path is "/" — serve index explicitly (createRelative("") can hit the directory)
@@ -75,5 +75,15 @@ public class SpaConfig implements WebMvcConfigurer {
                 return new FileSystemResource(clientDist.resolve("index.html"));
               }
             });
+  }
+
+  /** Paths served by controllers / springdoc — do not fall through to SPA index.html. */
+  private static boolean isApiOrDocsPath(String resourcePath) {
+    return resourcePath.startsWith("api/")
+        || "health".equals(resourcePath)
+        || resourcePath.startsWith("api-docs")
+        || resourcePath.startsWith("swagger-ui")
+        || resourcePath.startsWith("v3/api-docs")
+        || resourcePath.startsWith("webjars/");
   }
 }

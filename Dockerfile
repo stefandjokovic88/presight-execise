@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 
+# --- Shared base (native build tools for better-sqlite3 + Yarn) ---
 FROM node:20-bookworm-slim AS base
 RUN apt-get update \
   && apt-get install -y --no-install-recommends python3 make g++ \
@@ -7,18 +8,21 @@ RUN apt-get update \
 RUN corepack enable && corepack prepare yarn@4.9.1 --activate
 WORKDIR /app
 
+# --- Install workspace dependencies ---
 FROM base AS deps
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY client/package.json ./client/
 COPY server/package.json ./server/
 RUN yarn install --immutable
 
+# --- Build React client + compile Express server ---
 FROM deps AS build
 COPY client ./client
 COPY server ./server
 RUN yarn workspace presight-client build \
   && yarn workspace presight-server build
 
+# --- Runtime (API + static client on one port) ---
 FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=8080

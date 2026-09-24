@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { ensureDatabaseSeeded } from "./db/seed.js";
 import { requestLogging } from "./middleware/requestLogging.js";
 import { apiRouter } from "./routes/api.js";
+import { mountSwagger } from "./swagger.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3001;
@@ -24,6 +25,8 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+mountSwagger(app);
+
 app.use("/api", apiRouter);
 
 // Unknown /api/* routes → JSON 404 response shaped like API errors
@@ -38,7 +41,11 @@ if (fs.existsSync(CLIENT_DIST)) {
       next();
       return;
     }
-    if (req.path.startsWith("/api") || req.path === "/health") {
+    if (
+      req.path.startsWith("/api") ||
+      req.path === "/health" ||
+      req.path.startsWith("/api-docs")
+    ) {
       next();
       return;
     }
@@ -55,4 +62,5 @@ if (fs.existsSync(CLIENT_DIST)) {
 
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Swagger UI at http://localhost:${PORT}/api-docs`);
 });

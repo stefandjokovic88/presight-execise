@@ -182,6 +182,17 @@ Identical contract for Node and Java:
 
 Filter semantics: hobbies = **AND**, nationalities = **OR**, combined with text search. Sort is deterministic (`field`, then `id`).
 
+### Swagger / OpenAPI
+
+Both backends expose interactive API docs (and a machine-readable OpenAPI document you can import into Postman, Insomnia, etc.):
+
+| Backend | Swagger UI | OpenAPI JSON |
+| ------- | ---------- | ------------ |
+| Node    | [http://localhost:3001/api-docs](http://localhost:3001/api-docs) | [http://localhost:3001/api-docs.json](http://localhost:3001/api-docs.json) |
+| Java    | [http://localhost:3001/api-docs](http://localhost:3001/api-docs) | [http://localhost:3001/api-docs.json](http://localhost:3001/api-docs.json) |
+
+With Docker / production-style single-port runs, use port `8080` instead of `3001`.
+
 ---
 
 ## Exercise brief
